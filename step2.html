@@ -1,4 +1,4 @@
-\<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
   <title>OpenLayers Map</title>
@@ -52,9 +52,16 @@
         var assetData = doc.data();
         console.log(assetData); // Log the fetched data to the console
 
-        var latitude = assetData.assetLocation.latitude;
-        var longitude = assetData.assetLocation.longitude;
-        var altitude = assetData.assetLocation.altitude;
+        // var latitude = assetData.assetLocation.latitude;
+        // var longitude = assetData.assetLocation.longitude;
+        // var altitude = assetData.assetLocation.altitude;
+
+
+        var latitude = 22.9908737 ;
+         var longitude = 88.3712497;
+         var altitude = -44.581128371847434;
+
+
 
         var iconFeature = new ol.Feature({
           geometry: new ol.geom.Point(ol.proj.fromLonLat([longitude, latitude,altitude])),
@@ -73,7 +80,11 @@
         iconFeature.setStyle(iconStyle);
         vectorLayer.getSource().addFeature(iconFeature);
         map.addLayer(vectorLayer);
-        map.getView().fit(vectorLayer.getSource().getExtent(), { padding: [50, 50, 50, 50] });
+var extent = vectorLayer.getSource().getExtent();
+var center = ol.extent.getCenter(extent);
+map.getView().setCenter(center);
+map.getView().setZoom(10); 
+
       } else {
         console.log("Document does not exist");
       }
