@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>OpenLayers Map</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol/dist/ol.css" type="text/css">
+  <script src="https://cdn.jsdelivr.net/npm/ol/dist/ol.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-firestore.js"></script>
+</head>
+<body>
+  <div id="map" style="width: 100%; height: 400px;"></div>
+  <script>
+    // Initialize the map
+    var map = new ol.Map({
+      target: 'map',
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.OSM()
+        })
+      ],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([0, 0]),
+        zoom: 2
+      })
+    });
+
+    // Initialize Firebase
+    var firebaseConfig = {
+        apiKey: "AIzaSyDD13hgXWaH83Qd2uhYO9Xj0OHUaNEATC4",
+  authDomain: "amc-man.firebaseapp.com",
+  databaseURL: "https://amc-man-default-rtdb.firebaseio.com",
+  projectId: "amc-man",
+  storageBucket: "amc-man.appspot.com",
+  messagingSenderId: "246677683335",
+  appId: "1:246677683335:web:31428b4ba977f8eecd4c22",
+  measurementId: "G-W917KVDD8D"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    var vectorLayer = new ol.layer.Vector({
+      source: new ol.source.Vector()
+    });
+
+    // Get the data from Firestore
+    var db = firebase.firestore();
+    var collectionRef = db.collection("assets");
+
+    collectionRef.get().then(function(querySnapshot) {
+      querySnapshot.forEach(function(doc) {
+        var assetData = doc.data();
+
+        var latitude = assetData.assetLocation.latitude;
+        var longitude = assetData.assetLocation.longitude;
+        var altitude = assetData.assetLocation.altitude;
+
+        var iconFeature = new ol.Feature({
+          geometry: new ol.geom.Point(ol.proj.fromLonLat([longitude, latitude, altitude])),
+          name: assetData.assetName,
+          assetData: assetData
+        });
+
+        var iconStyle = new ol.style.Style({
+          image: new ol.style.Icon({
+            anchor: [0.5, 1],
+            src: 'custom.png',
+            scale: 0.02
+          })
+        });
+
+        iconFeature.setStyle(iconStyle);
+        vectorLayer.getSource().addFeature(iconFeature);
+      });
+
+      map.addLayer(vectorLayer);
+      var extent = vectorLayer.getSource().getExtent();
+      var size = map.getSize();
+      map.getView().fit(extent, { size: size, padding: [50, 50, 50, 50] });
+    }).catch(function(error) {
+      console.log("Error getting documents: ", error);
+    });
+  </script>
+</body>
+</html>
