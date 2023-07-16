@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Another Page</title>
+  <!-- Include necessary stylesheets and scripts -->
+</head>
+<body>
+  <div id="assetDataContainer"></div>
+  
+  <script>
+    // Get the document ID from the URL parameter
+    var urlParams = new URLSearchParams(window.location.search);
+    var assetId = urlParams.get('assetId');
+
+    // Initialize Firebase
+    var firebaseConfig = {
+      apiKey: "AIzaSyDD13hgXWaH83Qd2uhYO9Xj0OHUaNEATC4",
+  authDomain: "amc-man.firebaseapp.com",
+  databaseURL: "https://amc-man-default-rtdb.firebaseio.com",
+  projectId: "amc-man",
+  storageBucket: "amc-man.appspot.com",
+  messagingSenderId: "246677683335",
+  appId: "1:246677683335:web:31428b4ba977f8eecd4c22",
+  measurementId: "G-W917KVDD8D"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // Get the data from Firestore
+    var db = firebase.firestore();
+    var collectionRef = db.collection("assets").doc(assetId);
+
+    collectionRef.get().then(function(doc) {
+      if (doc.exists) {
+        var assetData = doc.data();
+        var assetDataContainer = document.getElementById('assetDataContainer');
+
+        // Display the document data on the page
+        // Modify this as per your desired format
+        assetDataContainer.innerHTML = '<h2>' + assetData.assetName + '</h2>' +
+          '<p>' + assetData.description + '</p>' +
+          '<p>Latitude: ' + assetData.assetLocation.latitude + '</p>' +
+          '<p>Longitude: ' + assetData.assetLocation.longitude + '</p>';
+      } else {
+        console.log("Document does not exist");
+      }
+    }).catch(function(error) {
+      console.log("Error getting document:", error);
+    });
+  </script>
+</body>
+</html>
